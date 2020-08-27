@@ -1,10 +1,12 @@
-﻿using UnityEditor;
+﻿using Mochizuki.Fantasma.Attributes;
+
+using UnityEditor;
 
 using UnityEngine;
 
 namespace Mochizuki.Fantasma.Drawers
 {
-    [CustomPropertyDrawer(typeof(DirectoryDrawer))]
+    [CustomPropertyDrawer(typeof(DirectoryAttribute))]
     public class DirectoryDrawer : PropertyDrawer
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
