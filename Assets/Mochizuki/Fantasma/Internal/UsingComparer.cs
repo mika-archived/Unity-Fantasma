@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Mochizuki.Fantasma.Internal
 {
@@ -13,12 +12,12 @@ namespace Mochizuki.Fantasma.Internal
                 return 1;
 
             if (x.StartsWith("System") && y.StartsWith("System"))
-                return string.Compare(x, y, StringComparison.Ordinal);
+                return string.CompareOrdinal(x, y);
             if (x.StartsWith("System") && !y.StartsWith("System"))
                 return -1;
             if (!x.StartsWith("System") && y.StartsWith("System"))
                 return 1;
-            return string.Compare(x, y, StringComparison.Ordinal);
+            return string.CompareOrdinal(x, y);
         }
     }
 }
