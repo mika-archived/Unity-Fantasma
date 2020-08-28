@@ -37,7 +37,18 @@ And the following line to the `dependencies` section.
 ## Basic Usage
 
 Open `Mochizuki/Fantasma/Editor` from the Unity menubar.  
-Set the top-level class library and destination directory, then press the button to generate it.
+Set the top-level class library and destination directory, then press the button to generate it.  
+When you provided `Assembly.A.dll` with its dependency `Assembly.B.dll`, Fantasma makes below directories and files.
+
+```
+ROOT_DIRECTORY (YOU PROVIDED)
++- Assembly.A
+|  |- Assembly.A.asmdef
+|  |- Path/To/Namespace/ClassA.cs
++- Assembly.B
+|  |- Assembly.B.asmdef
+|  |- Path/To/Namespace/ClassB.cs
+```
 
 ## How it works
 
@@ -49,6 +60,11 @@ Examples of missing information on IL:
 - `new` keyword in nested class, methods and others.
 - `virtual` keyword in override methods and properties.
 - `unsafe` keyword in class, methods and others.
+
+Examples of missing information on Reflection:
+
+- `base` keyword in constructor.
+  - So, Fantasma will generate a `protected internal` default constructor for all classes.
 
 ## License
 
