@@ -6,9 +6,7 @@ namespace Mochizuki.Fantasma.Internal
     {
         public int Compare(string x, string y)
         {
-            if (string.IsNullOrWhiteSpace(x))
-                return 1;
-            if (string.IsNullOrWhiteSpace(y))
+            if (string.IsNullOrWhiteSpace(x) || string.IsNullOrWhiteSpace(y))
                 return 1;
 
             if (x.StartsWith("System") && y.StartsWith("System"))
