@@ -7,10 +7,16 @@ namespace Mochizuki.Fantasma.Extensions
 {
     internal static class TypeExtensions
     {
+        private static readonly List<string> DenyInterfaces = new List<string> { "_Attribute" };
 
         public static bool IsKeywordType(this Type type)
         {
             return type.FullNameWithoutNamespace() != type.KeywordNormalizedName();
+        }
+
+        public static bool IsDelegate(this Type t)
+        {
+            return t.IsSubclassOf(typeof(Delegate)) || t == typeof(Delegate);
         }
 
         public static string FullNameWithoutNamespace(this Type t)
@@ -77,6 +83,34 @@ namespace Mochizuki.Fantasma.Extensions
 
                 // ReSharper restore PatternAlwaysOfType
             }
+        }
+
+        public static Type[] GetDirectImplementedInterfaces(this Type t)
+        {
+            if (!t.IsClass)
+                return Array.Empty<Type>();
+
+            var interfaces = new HashSet<Type>(t.GetInterfaces());
+            var removals = new HashSet<Type>();
+
+            foreach (var @interface in interfaces)
+            foreach (var i in @interface.GetInterfaces())
+                removals.Add(i);
+
+            interfaces.ExceptWith(removals);
+
+            return interfaces.Where(w => DenyInterfaces.Exists(v => w.Name != v)).ToArray();
+        }
+
+        public static bool IsGenericParameter(this Type t)
+        {
+            if (t.IsGenericParameter)
+                return true;
+
+            if (t.IsByRef)
+                return t.GetElementType()?.IsGenericParameter ?? false;
+
+            return false;
         }
     }
 }

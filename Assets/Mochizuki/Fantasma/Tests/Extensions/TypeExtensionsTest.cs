@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 using Mochizuki.Fantasma.Extensions;
 
@@ -11,19 +12,68 @@ namespace Mochizuki.Fantasma.Tests.Extensions
     [TestFixture]
     internal class TypeExtensionsTest
     {
-        // for test case
-        private static class A
+        private interface IInterfaceA { }
+
+        private interface IInterfaceB : IInterfaceA { }
+
+        private class BaseClass { }
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class AClass : BaseClass, IDisposable, IInterfaceB
         {
-            public class B { }
+            public delegate void DelegateA();
+
+            // ReSharper disable once UnusedMember.Local
+            // ReSharper disable once UnassignedGetOnlyAutoProperty
+            public DelegateA SomeDelegate { get; }
+
+            public void Dispose() { }
+
+            public void MethodA<T1, T2, T3, T4>(T1 a, in T2 b, out T3 c, ref T4 d, string e)
+            {
+                c = default;
+            }
+
+            public class BClass { }
         }
 
         [Test]
         [TestCase(typeof(bool), "Boolean")]
         [TestCase(typeof(TypeExtensionsTest), "TypeExtensionsTest")]
-        [TestCase(typeof(A.B), "TypeExtensionsTest.A.B")]
-        public void FullnameWithoutNamespaceTest(Type t, string expected)
+        [TestCase(typeof(AClass.BClass), "TypeExtensionsTest.AClass.BClass")]
+        public void FullNameWithoutNamespaceTest(Type t, string expected)
         {
             Assert.AreEqual(expected, t.FullNameWithoutNamespace());
+        }
+
+        [Test]
+        [TestCase(typeof(BinaryReader), new[] { typeof(IDisposable) })]
+        [TestCase(typeof(AClass), new[] { typeof(IDisposable), typeof(IInterfaceB) })]
+        [TestCase(typeof(AClass.BClass), new Type[] { })]
+        public void GetDirectImplementedInterfacesTest(Type t, Type[] expected)
+        {
+            CollectionAssert.AreEqual(expected, t.GetDirectImplementedInterfaces());
+        }
+
+        [Test]
+        [TestCase(typeof(AClass.DelegateA), true)]
+        [TestCase(typeof(Action), true)] // System.Action is inherited from System.Delegate
+        [TestCase(typeof(AClass), false)]
+        public void IsDelegateTest(Type t, bool expected)
+        {
+            Assert.AreEqual(expected, t.IsDelegate());
+        }
+
+        [Test]
+        [TestCase(typeof(AClass), "MethodA", 0, true)]
+        [TestCase(typeof(AClass), "MethodA", 1, true)]
+        [TestCase(typeof(AClass), "MethodA", 2, true)]
+        [TestCase(typeof(AClass), "MethodA", 3, true)]
+        [TestCase(typeof(AClass), "MethodA", 4, false)]
+        public void IsGenericParameterTest(Type t, string method, int i, bool expected)
+        {
+            var m = t.GetMethod(method);
+            Assert.AreEqual(expected, m!.GetParameters()[i].ParameterType.IsGenericParameter());
         }
 
         [Test]
