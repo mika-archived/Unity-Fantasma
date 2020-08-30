@@ -11,8 +11,13 @@
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Microsoft.CodeAnalysis.dll",
+        "Microsoft.CodeAnalysis.CSharp.dll",
+        "Microsoft.CodeAnalysis.CSharp.Workspaces.dll",
+        "Microsoft.CodeAnalysis.Workspaces.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": []
 }
