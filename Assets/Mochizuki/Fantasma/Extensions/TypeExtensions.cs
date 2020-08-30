@@ -8,6 +8,11 @@ namespace Mochizuki.Fantasma.Extensions
     internal static class TypeExtensions
     {
 
+        public static bool IsKeywordType(this Type type)
+        {
+            return type.FullNameWithoutNamespace() != type.KeywordNormalizedName();
+        }
+
         public static string FullNameWithoutNamespace(this Type t)
         {
             return t.DeclaringType == null ? t.Name : $"{FullNameWithoutNamespace(t.DeclaringType)}.{t.Name}";
