@@ -29,6 +29,7 @@ namespace Mochizuki.Fantasma.Tests.Extensions
 
             public void Dispose() { }
 
+            // ReSharper disable once UnusedParameter.Local
             public void MethodA<T1, T2, T3, T4>(T1 a, in T2 b, out T3 c, ref T4 d, string e)
             {
                 c = default;
@@ -52,7 +53,7 @@ namespace Mochizuki.Fantasma.Tests.Extensions
         [TestCase(typeof(AClass.BClass), new Type[] { })]
         public void GetDirectImplementedInterfacesTest(Type t, Type[] expected)
         {
-            CollectionAssert.AreEqual(expected, t.GetDirectImplementedInterfaces());
+            CollectionAssert.AreEquivalent(expected, t.GetDirectImplementedInterfaces());
         }
 
         [Test]
@@ -73,7 +74,9 @@ namespace Mochizuki.Fantasma.Tests.Extensions
         public void IsGenericParameterTest(Type t, string method, int i, bool expected)
         {
             var m = t.GetMethod(method);
-            Assert.AreEqual(expected, m!.GetParameters()[i].ParameterType.IsGenericParameter());
+
+            // ReSharper disable once PossibleNullReferenceException
+            Assert.AreEqual(expected, m.GetParameters()[i].ParameterType.IsGenericParameter());
         }
 
         [Test]

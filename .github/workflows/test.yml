@@ -23,7 +23,7 @@ jobs:
         with:
           lfs: true
 
-      - name: Prepare Unity3D for building package(s)
+      - name: Prepare Unity3D for building
         run: |
           mkdir -p /root/.cache/unity3d
           mkdir -p /root/.local/share/unity3d/Unity
