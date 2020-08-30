@@ -1,0 +1,46 @@
+version: 2
+
+jobs:
+  test:
+    docker:
+      - image: gableroux/unity3d:2018.4.20f1
+
+    steps:
+      - run:
+          name: Upgrade Git to latest version
+          command: |
+            apt update -qq
+            apt install software-properties-common -y
+            add-apt-repository ppa:git-core/ppa -y
+            apt update -qq
+            apt install git git-lfs -y
+
+      - checkout
+
+      - run:
+          name: Git LFS
+          command: |
+            git lfs pull
+
+      - run:
+          name: Prepare Unity3D for building
+          command: |
+            mkdir -p /root/.cache/unity3d
+            mkdir -p /root/.local/share/unity3d/Unity
+            echo $UNITY_LICENSE | base64 --decode | openssl enc -pbkdf2 -aes-256-cbc -d -k $CIPHER_KEY > /root/.local/share/unity3d/Unity/Unity_lic.ulf
+
+      - run:
+          name: Unity License Activation
+          command: |
+            /opt/Unity/Editor/Unity -quit -batchmode -nographics -silent-crashes -logFile -manualLicenseFile /root/.local/share/unity3d/Unity/Unity_lic.ulf || exit 0
+
+      - run:
+          name: Unit Test in Edit Mode
+          command: |
+            /opt/Unity/Editor/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath . -runEditorTests -testPlatform editmode
+
+workflows:
+  version: 2
+  unit-test:
+    jobs:
+      - test
