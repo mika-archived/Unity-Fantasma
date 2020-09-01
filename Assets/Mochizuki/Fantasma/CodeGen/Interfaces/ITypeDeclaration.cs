@@ -18,11 +18,6 @@ namespace Mochizuki.Fantasma.CodeGen.Interfaces
         ReadOnlyCollection<Type> NestedClasses { get; }
 
         /// <summary>
-        ///     all type references in this declarations
-        /// </summary>
-        ReadOnlyCollection<Type> References { get; }
-
-        /// <summary>
         ///     all alias type references in this declarations
         /// </summary>
         ReadOnlyCollection<Type> AliasReferences { get; }
