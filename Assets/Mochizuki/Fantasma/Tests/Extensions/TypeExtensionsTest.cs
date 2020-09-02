@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Mochizuki.Fantasma.Extensions;
 
 using NUnit.Framework;
+
+using UnityEngine;
 
 using Object = UnityEngine.Object;
 
@@ -35,16 +38,31 @@ namespace Mochizuki.Fantasma.Tests.Extensions
                 c = default;
             }
 
-            public class BClass { }
+            public class BClass
+            {
+                public class CClass { }
+            }
+
+            public class DClass<T>
+            {
+                public class EClass
+                {
+                    public class LClass<T1> { }
+                }
+            }
         }
 
-        [Test]
-        [TestCase(typeof(bool), "Boolean")]
-        [TestCase(typeof(TypeExtensionsTest), "TypeExtensionsTest")]
-        [TestCase(typeof(AClass.BClass), "TypeExtensionsTest.AClass.BClass")]
-        public void FullNameWithoutNamespaceTest(Type t, string expected)
+        private class FClass<T>
         {
-            Assert.AreEqual(expected, t.FullNameWithoutNamespace());
+            public class GClass
+            {
+                public class HClass<T1> { }
+            }
+
+            public class JClass<T1, T2>
+            {
+                public class KClass { }
+            }
         }
 
         [Test]
@@ -123,6 +141,26 @@ namespace Mochizuki.Fantasma.Tests.Extensions
         public void KeywordNormalizedNameTest(Type t, string expected)
         {
             Assert.AreEqual(expected, t.KeywordNormalizedName());
+        }
+
+        [Test]
+        [TestCase(typeof(bool), "bool")]
+        [TestCase(typeof(GameObject), "GameObject")]
+        [TestCase(typeof(GameObject[]), "GameObject[]")]
+        [TestCase(typeof(IEnumerable<string>), "IEnumerable<string>")]
+        [TestCase(typeof(AClass), "TypeExtensionsTest.AClass")]
+        [TestCase(typeof(AClass.BClass.CClass), "TypeExtensionsTest.AClass.BClass.CClass")]
+        [TestCase(typeof(AClass.DClass<string>), "TypeExtensionsTest.AClass.DClass<string>")]
+        [TestCase(typeof(AClass.DClass<string>.EClass), "TypeExtensionsTest.AClass.DClass<string>.EClass")]
+        [TestCase(typeof(AClass.DClass<>.EClass), "TypeExtensionsTest.AClass.DClass<T>.EClass")]
+        [TestCase(typeof(AClass.DClass<>.EClass.LClass<>), "TypeExtensionsTest.AClass.DClass<T>.EClass.LClass<T1>")]
+        [TestCase(typeof(FClass<string>.GClass), "TypeExtensionsTest.FClass<string>.GClass")]
+        [TestCase(typeof(FClass<string>.GClass[]), "TypeExtensionsTest.FClass<string>.GClass[]")]
+        [TestCase(typeof(FClass<string>.GClass.HClass<int>), "TypeExtensionsTest.FClass<string>.GClass.HClass<int>")]
+        [TestCase(typeof(FClass<int>.JClass<GameObject, string>.KClass), "TypeExtensionsTest.FClass<int>.JClass<GameObject, string>.KClass")]
+        public void NormalizedNameTest(Type t, string expected)
+        {
+            Assert.AreEqual(expected, t.NormalizedName());
         }
     }
 }

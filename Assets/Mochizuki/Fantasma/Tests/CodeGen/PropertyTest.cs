@@ -16,6 +16,11 @@ namespace Mochizuki.Fantasma.Tests.CodeGen
     {
         private class AClass<T>
         {
+            public class BClass
+            {
+                public class CClass { }
+            }
+
             // ReSharper disable UnusedMember.Local
             // ReSharper disable UnassignedGetOnlyAutoProperty
 
@@ -47,6 +52,10 @@ namespace Mochizuki.Fantasma.Tests.CodeGen
             // ReSharper disable once StaticMemberInGenericType
             public static double PropertyF { get; private set; }
 
+            public BClass PropertyG { get; set; }
+
+            public BClass.CClass PropertyH { get; set; }
+
             // ReSharper restore UnusedMember.Local
             // ReSharper restore UnassignedGetOnlyAutoProperty
         }
@@ -58,6 +67,8 @@ namespace Mochizuki.Fantasma.Tests.CodeGen
         [TestCase(typeof(AClass<>), 3, "public T PropertyD{get;set;}")]
         [TestCase(typeof(AClass<>), 4, "public string PropertyE{get;set;}")]
         [TestCase(typeof(AClass<>), 5, "public static double PropertyF{get;}")]
+        [TestCase(typeof(AClass<>), 6, "public PropertyTest.AClass<T>.BClass PropertyG{get;set;}")]
+        [TestCase(typeof(AClass<>), 7, "public PropertyTest.AClass<T>.BClass.CClass PropertyH{get;set;}")]
         public void DeclarationToSyntax(Type cls, int idx, string expected)
         {
             var property = cls.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)[idx];

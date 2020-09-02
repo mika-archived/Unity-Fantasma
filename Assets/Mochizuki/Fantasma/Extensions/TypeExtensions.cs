@@ -1,7 +1,7 @@
-﻿using Mochizuki.Fantasma.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Mochizuki.Fantasma.Extensions
@@ -10,9 +10,29 @@ namespace Mochizuki.Fantasma.Extensions
     {
         private static readonly List<string> DenyInterfaces = new List<string> { "_Attribute" };
 
-        public static bool IsKeywordType(this Type type)
+        private static readonly List<KeyValuePair<Type, string>> KeywordTypes = new List<KeyValuePair<Type, string>>
         {
-            return type.FullNameWithoutNamespace() != type.KeywordNormalizedName();
+            new KeyValuePair<Type, string>(typeof(bool), "bool"),
+            new KeyValuePair<Type, string>(typeof(byte), "byte"),
+            new KeyValuePair<Type, string>(typeof(sbyte), "sbyte"),
+            new KeyValuePair<Type, string>(typeof(char), "char"),
+            new KeyValuePair<Type, string>(typeof(decimal), "decimal"),
+            new KeyValuePair<Type, string>(typeof(double), "double"),
+            new KeyValuePair<Type, string>(typeof(float), "float"),
+            new KeyValuePair<Type, string>(typeof(int), "int"),
+            new KeyValuePair<Type, string>(typeof(uint), "uint"),
+            new KeyValuePair<Type, string>(typeof(long), "long"),
+            new KeyValuePair<Type, string>(typeof(ulong), "ulong"),
+            new KeyValuePair<Type, string>(typeof(short), "short"),
+            new KeyValuePair<Type, string>(typeof(ushort), "ushort"),
+            new KeyValuePair<Type, string>(typeof(object), "object"),
+            new KeyValuePair<Type, string>(typeof(string), "string"),
+            new KeyValuePair<Type, string>(typeof(void), "void")
+        };
+
+        public static bool IsKeywordType(this Type t)
+        {
+            return KeywordTypes.Any(w => w.Key == t);
         }
 
         public static bool IsDelegate(this Type t)
@@ -20,13 +40,7 @@ namespace Mochizuki.Fantasma.Extensions
             return t.IsSubclassOf(typeof(Delegate)) || t == typeof(Delegate);
         }
 
-        public static string FullNameWithoutNamespace(this Type t)
-        {
-            return t.DeclaringType == null ? t.Name : $"{FullNameWithoutNamespace(t.DeclaringType)}.{t.Name}";
-        }
-
-        [NoTest]
-        public static string NormalizedName(this Type t)
+        public static string NormalizedName(this Type t, bool isRecursiveCall = false)
         {
             if (t.IsKeywordType())
                 return t.KeywordNormalizedName();
@@ -34,100 +48,97 @@ namespace Mochizuki.Fantasma.Extensions
                 return t.Name;
 
             var sb = new StringBuilder();
+            if (t.DeclaringType != null)
+                sb.Append(t.DeclaringType.NormalizedName(true)).Append(".");
+
             if (t.IsGenericType)
             {
-                sb.Append(t.FullNameWithoutNamespace(), 0, t.FullNameWithoutNamespace().IndexOf('`'))
-                  .Append("<");
+                // NOTE: in the case of the nested types, the type parameter is given to the last type.
+                //       therefore, it does not replace the type placeholder in this section, but is replaced by a later process.
 
-                foreach (var (type, index) in t.GenericTypeArguments.Select((w, i) => (Type: w, Index: i)))
+                // Has Generic Type Arguments
+                if (t.GenericTypeArguments.Length > 0)
                 {
-                    if (index > 0)
-                        sb.Append(", ");
-                    sb.Append(type.NormalizedName());
-                }
+                    if (t.Name.Contains("`"))
+                    {
+                        var inherit = t.DeclaringType != null ? InheritedGenericTypeParametersCount(t.DeclaringType) : 0;
+                        if (inherit > 0)
+                            for (var j = 0; j < inherit; j++)
+                            {
+                                var g = t.GetGenericArguments()[j];
+                                var i = sb.ToString().IndexOf("`1", StringComparison.Ordinal);
+                                sb.Replace("`1", g.NormalizedName(true), i, "`1".Length);
+                            }
 
-                sb.Append(">");
+                        sb.Append(t.Name, 0, t.Name.IndexOf("`", StringComparison.Ordinal)).Append("<");
+
+                        foreach (var (g, i) in t.GetGenericArguments().Skip(inherit).Select((w, i) => (w, i)))
+                        {
+                            if (i > 0)
+                                sb.Append(", ");
+                            sb.Append(g.NormalizedName(true));
+                        }
+
+                        sb.Append(">");
+                    }
+                    else
+                    {
+                        foreach (var g in t.GetGenericArguments())
+                        {
+                            var i = sb.ToString().IndexOf("`1", StringComparison.Ordinal);
+                            sb.Replace("`1", g.NormalizedName(true), i, "`1".Length);
+                        }
+
+                        sb.Append(t.Name);
+                    }
+                }
+                else
+                {
+                    if (t.Name.Contains("`"))
+                    {
+                        sb.Append(t.Name, 0, t.Name.IndexOf("`", StringComparison.Ordinal)).Append("<");
+
+                        var inherit = t.DeclaringType != null ? InheritedGenericTypeParametersCount(t.DeclaringType) : 0;
+                        var own = t.GetGenericTypeDefinition().GetTypeInfo().GenericTypeParameters.Length;
+
+                        for (var i = 0; i < own - inherit; i++)
+                        {
+                            if (i > 0)
+                                sb.Append(", ");
+                            sb.Append("`1");
+                        }
+
+                        sb.Append(">");
+                    }
+                    else
+                    {
+                        sb.Append(t.Name);
+                    }
+                }
             }
             else if (t.IsArray)
             {
-                sb.Append(t.GetElementType().NormalizedName());
+                sb.Append(t.GetElementType().NormalizedName(true));
                 sb.Append("[]");
             }
             else
             {
-                sb.Append(t.FullNameWithoutNamespace());
+                sb.Append(t.Name);
             }
+
+            if (!isRecursiveCall && t.IsGenericType && t.GetGenericTypeDefinition().GetTypeInfo().GenericTypeParameters.Length == CountOfStringInString(sb.ToString(), "`1"))
+                foreach (var g in t.GetGenericTypeDefinition().GetTypeInfo().GenericTypeParameters)
+                {
+                    var i = sb.ToString().IndexOf("`1", StringComparison.Ordinal);
+                    sb.Replace("`1", g.NormalizedName(true), i, "`1".Length);
+                }
 
             return sb.ToString();
         }
 
-        [NoTest]
-        public static string NormalizedFullName(this Type t)
+        public static string KeywordNormalizedName(this Type t)
         {
-            var @namespace = t.Namespace;
-
-            return $"{@namespace}.{t.NormalizedName()}";
-        }
-
-        public static string KeywordNormalizedName(this Type type)
-        {
-            switch (type)
-            {
-                // ReSharper disable PatternAlwaysOfType
-
-                case Type _ when type == typeof(bool):
-                    return "bool";
-
-                case Type _ when type == typeof(byte):
-                    return "byte";
-
-                case Type _ when type == typeof(sbyte):
-                    return "sbyte";
-
-                case Type _ when type == typeof(char):
-                    return "char";
-
-                case Type _ when type == typeof(decimal):
-                    return "decimal";
-
-                case Type _ when type == typeof(double):
-                    return "double";
-
-                case Type _ when type == typeof(float):
-                    return "float";
-
-                case Type _ when type == typeof(int):
-                    return "int";
-
-                case Type _ when type == typeof(uint):
-                    return "uint";
-
-                case Type _ when type == typeof(long):
-                    return "long";
-
-                case Type _ when type == typeof(ulong):
-                    return "ulong";
-
-                case Type _ when type == typeof(short):
-                    return "short";
-
-                case Type _ when type == typeof(ushort):
-                    return "ushort";
-
-                case Type _ when type == typeof(object):
-                    return "object";
-
-                case Type _ when type == typeof(string):
-                    return "string";
-
-                case Type _ when type == typeof(void):
-                    return "void";
-
-                default:
-                    return type.FullNameWithoutNamespace();
-
-                // ReSharper restore PatternAlwaysOfType
-            }
+            return KeywordTypes.Find(w => w.Key == t).Value ?? t.NormalizedName();
         }
 
         public static Type[] GetDirectImplementedInterfaces(this Type t)
@@ -138,8 +149,7 @@ namespace Mochizuki.Fantasma.Extensions
             var interfaces = new HashSet<Type>(t.GetInterfaces());
             var removals = new HashSet<Type>();
 
-            foreach (var @interface in interfaces)
-            foreach (var i in @interface.GetInterfaces())
+            foreach (var i in interfaces.SelectMany(@interface => @interface.GetInterfaces()))
                 removals.Add(i);
 
             interfaces.ExceptWith(removals);
@@ -156,6 +166,25 @@ namespace Mochizuki.Fantasma.Extensions
                 return t.GetElementType()?.IsGenericParameter ?? false;
 
             return false;
+        }
+
+        private static int InheritedGenericTypeParametersCount(Type t)
+        {
+            return t.IsGenericType ? t.GetGenericTypeDefinition().GetTypeInfo().GenericTypeParameters.Length : 0;
+        }
+
+        private static int CountOfStringInString(string str, string term)
+        {
+            var i = 0;
+            var l = 0;
+
+            while (str.IndexOf(term, l, StringComparison.Ordinal) >= 0)
+            {
+                i++;
+                l = str.IndexOf(term, l, StringComparison.Ordinal) + term.Length;
+            }
+
+            return i;
         }
     }
 }
