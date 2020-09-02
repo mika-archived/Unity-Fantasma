@@ -10,6 +10,10 @@ using UnityEngine;
 
 using Object = UnityEngine.Object;
 
+#pragma warning disable RCS1102 // Make class static.
+#pragma warning disable RCS1163 // Unused parameter.
+#pragma warning disable IDE0060 // Remove unused parameter.
+
 namespace Mochizuki.Fantasma.Tests.Extensions
 {
     [TestFixture]
@@ -30,9 +34,12 @@ namespace Mochizuki.Fantasma.Tests.Extensions
             // ReSharper disable once UnassignedGetOnlyAutoProperty
             public DelegateA SomeDelegate { get; }
 
-            public void Dispose() { }
+            public void Dispose() { } //
 
-            // ReSharper disable once UnusedParameter.Local
+            // ReSharper disable ClassNeverInstantiated.Local
+            // ReSharper disable UnusedTypeParameter
+            // ReSharper disable UnusedParameter.Local
+            // ReSharper disable UnusedMember.Local
             public void MethodA<T1, T2, T3, T4>(T1 a, in T2 b, out T3 c, ref T4 d, string e)
             {
                 c = default;
