@@ -4,6 +4,6 @@ namespace Mochizuki.Fantasma.CodeGen.Interfaces
 {
     internal interface ICodeGen<out T> where T : CSharpSyntaxNode
     {
-        T DeclarationToSyntax();
+        T DeclarationToSyntax(bool implementation);
     }
 }

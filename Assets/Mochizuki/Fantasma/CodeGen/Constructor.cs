@@ -27,7 +27,7 @@ namespace Mochizuki.Fantasma.CodeGen
             _isInternal = isInternal;
         }
 
-        public ConstructorDeclarationSyntax DeclarationToSyntax()
+        public ConstructorDeclarationSyntax DeclarationToSyntax(bool implementation)
         {
             if (_isInternal)
             {

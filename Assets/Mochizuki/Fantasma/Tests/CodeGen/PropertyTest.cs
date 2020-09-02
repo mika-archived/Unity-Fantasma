@@ -9,6 +9,8 @@ using NUnit.Framework;
 
 using UnityEngine;
 
+#pragma warning disable RCS1102 // Make class static.
+
 namespace Mochizuki.Fantasma.Tests.CodeGen
 {
     [TestFixture]
@@ -16,6 +18,7 @@ namespace Mochizuki.Fantasma.Tests.CodeGen
     {
         private class AClass<T>
         {
+            // ReSharper disable once ClassNeverInstantiated.Local
             public class BClass
             {
                 public class CClass { }
@@ -61,18 +64,19 @@ namespace Mochizuki.Fantasma.Tests.CodeGen
         }
 
         [Test]
-        [TestCase(typeof(AClass<>), 0, "public int PropertyA{get;}")]
-        [TestCase(typeof(AClass<>), 1, "public GameObject PropertyB{get;}")]
-        [TestCase(typeof(AClass<>), 2, "public int PropertyC{set;}")]
-        [TestCase(typeof(AClass<>), 3, "public T PropertyD{get;set;}")]
-        [TestCase(typeof(AClass<>), 4, "public string PropertyE{get;set;}")]
-        [TestCase(typeof(AClass<>), 5, "public static double PropertyF{get;}")]
-        [TestCase(typeof(AClass<>), 6, "public PropertyTest.AClass<T>.BClass PropertyG{get;set;}")]
-        [TestCase(typeof(AClass<>), 7, "public PropertyTest.AClass<T>.BClass.CClass PropertyH{get;set;}")]
-        public void DeclarationToSyntax(Type cls, int idx, string expected)
+        [TestCase(typeof(AClass<>), 0, true, "public int PropertyA{get;}")]
+        [TestCase(typeof(AClass<>), 1, true, "public GameObject PropertyB{get;}")]
+        [TestCase(typeof(AClass<>), 2, true, "public int PropertyC{set;}")]
+        [TestCase(typeof(AClass<>), 3, true, "public T PropertyD{get;set;}")]
+        [TestCase(typeof(AClass<>), 4, true, "public string PropertyE{get;set;}")]
+        [TestCase(typeof(AClass<>), 5, true, "public static double PropertyF{get;}")]
+        [TestCase(typeof(AClass<>), 6, true, "public PropertyTest.AClass<T>.BClass PropertyG{get;set;}")]
+        [TestCase(typeof(AClass<>), 7, true, "public PropertyTest.AClass<T>.BClass.CClass PropertyH{get;set;}")]
+        [TestCase(typeof(AClass<>), 1, false, "GameObject PropertyB{get;}")]
+        public void DeclarationToSyntax(Type cls, int idx, bool implementation, string expected)
         {
             var property = cls.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)[idx];
-            Assert.AreEqual(expected, new Property(property).DeclarationToSyntax().NormalizeWhitespace().ToFullString().Replace(Environment.NewLine, "").Replace("    ", ""), expected);
+            Assert.AreEqual(expected, new Property(property).DeclarationToSyntax(implementation).NormalizeWhitespace().ToFullString().Replace(Environment.NewLine, "").Replace("    ", ""), expected);
         }
     }
 }

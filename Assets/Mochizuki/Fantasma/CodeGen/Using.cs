@@ -18,7 +18,7 @@ namespace Mochizuki.Fantasma.CodeGen
             _isAlias = isAlias;
         }
 
-        public UsingDirectiveSyntax DeclarationToSyntax()
+        public UsingDirectiveSyntax DeclarationToSyntax(bool implementation)
         {
             if (_isAlias)
                 return SyntaxFactory.UsingDirective(SyntaxFactory.NameEquals(_typeReference.Name), SyntaxFactory.ParseName(_typeReference.FullName));

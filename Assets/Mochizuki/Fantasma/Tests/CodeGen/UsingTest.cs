@@ -19,7 +19,7 @@ namespace Mochizuki.Fantasma.Tests.CodeGen
         [TestCase(typeof(Object), true, "using Object = UnityEngine.Object;")]
         public void DeclarationToSyntax(Type cls, bool isAlias, string expected)
         {
-            Assert.AreEqual(expected, new Using(cls, isAlias).DeclarationToSyntax().NormalizeWhitespace().ToFullString());
+            Assert.AreEqual(expected, new Using(cls, isAlias).DeclarationToSyntax(false).NormalizeWhitespace().ToFullString());
         }
     }
 }

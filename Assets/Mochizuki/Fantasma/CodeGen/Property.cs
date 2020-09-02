@@ -23,13 +23,18 @@ namespace Mochizuki.Fantasma.CodeGen
             _property = property;
         }
 
-        public PropertyDeclarationSyntax DeclarationToSyntax()
+        public PropertyDeclarationSyntax DeclarationToSyntax(bool implementation)
         {
-            var modifiers = new List<SyntaxKind> { SyntaxKind.PublicKeyword };
-            if (_property.GetAccessors().Any(w => w.IsStatic))
-                modifiers.Add(SyntaxKind.StaticKeyword);
+            var property = SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName(Type.NormalizedName()), _property.Name);
+            if (implementation)
+            {
+                var modifiers = new List<SyntaxKind> { SyntaxKind.PublicKeyword };
+                if (_property.GetAccessors().Any(w => w.IsStatic))
+                    modifiers.Add(SyntaxKind.StaticKeyword);
 
-            var property = SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName(Type.NormalizedName()), _property.Name).AddModifiers(modifiers.Select(SyntaxFactory.Token).ToArray());
+                property = property.AddModifiers(modifiers.Select(SyntaxFactory.Token).ToArray());
+            }
+
             var accessors = new List<AccessorDeclarationSyntax>();
             if (_property.CanRead && _property.GetMethod.IsPublic)
                 accessors.Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration));

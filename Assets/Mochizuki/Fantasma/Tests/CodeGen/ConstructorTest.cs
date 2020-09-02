@@ -22,7 +22,7 @@ namespace Mochizuki.Fantasma.Tests.CodeGen
         public void DeclarationToSyntaxTest(Type cls, int ctor, bool isInternal, string expected)
         {
             var constructor = cls.GetConstructors(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly)[ctor];
-            Assert.AreEqual(expected, new Constructor(constructor, isInternal).DeclarationToSyntax().NormalizeWhitespace().ToFullString().Replace(Environment.NewLine, ""));
+            Assert.AreEqual(expected, new Constructor(constructor, isInternal).DeclarationToSyntax(true).NormalizeWhitespace().ToFullString().Replace(Environment.NewLine, ""));
         }
 
         // ReSharper disable UnusedParameter.Local
