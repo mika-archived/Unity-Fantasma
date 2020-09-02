@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mochizuki.Fantasma.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,50 @@ namespace Mochizuki.Fantasma.Extensions
         public static string FullNameWithoutNamespace(this Type t)
         {
             return t.DeclaringType == null ? t.Name : $"{FullNameWithoutNamespace(t.DeclaringType)}.{t.Name}";
+        }
+
+        [NoTest]
+        public static string NormalizedName(this Type t)
+        {
+            if (t.IsKeywordType())
+                return t.KeywordNormalizedName();
+            if (t.IsGenericParameter)
+                return t.Name;
+
+            var sb = new StringBuilder();
+            if (t.IsGenericType)
+            {
+                sb.Append(t.FullNameWithoutNamespace(), 0, t.FullNameWithoutNamespace().IndexOf('`'))
+                  .Append("<");
+
+                foreach (var (type, index) in t.GenericTypeArguments.Select((w, i) => (Type: w, Index: i)))
+                {
+                    if (index > 0)
+                        sb.Append(", ");
+                    sb.Append(type.NormalizedName());
+                }
+
+                sb.Append(">");
+            }
+            else if (t.IsArray)
+            {
+                sb.Append(t.GetElementType().NormalizedName());
+                sb.Append("[]");
+            }
+            else
+            {
+                sb.Append(t.FullNameWithoutNamespace());
+            }
+
+            return sb.ToString();
+        }
+
+        [NoTest]
+        public static string NormalizedFullName(this Type t)
+        {
+            var @namespace = t.Namespace;
+
+            return $"{@namespace}.{t.NormalizedName()}";
         }
 
         public static string KeywordNormalizedName(this Type type)
