@@ -19,6 +19,8 @@ namespace Mochizuki.Fantasma.CodeGen
 
         public ReadOnlyCollection<Type> ArgumentTypes => _constructor.GetParameters().Select(w => w.ParameterType).ToList().AsReadOnly();
 
+        public bool IsDefaultConstructor => _constructor.GetParameters().Length == 0 && _constructor.IsPublic;
+
         public Constructor(ConstructorInfo constructor, bool isInternal)
         {
             _constructor = constructor;
