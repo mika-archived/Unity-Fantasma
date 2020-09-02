@@ -19,7 +19,7 @@ namespace Mochizuki.Fantasma.Tests.Internal
         {
             var fields = new[] { new Field(null), new Field(null) };
             var properties = new[] { new Property(null), new Property(null) };
-            var constructors = new[] { new Constructor(null), new Constructor(null) };
+            var constructors = new[] { new Constructor(null, false), new Constructor(null, false) };
             var methods = new[] { new MethodInterface(null), new MethodInterface(null) };
             var delegates = new[] { new Delegate(typeof(ADelegate)), new Delegate(typeof(ADelegate)) };
             var events = new[] { new Event(null), new Event(null) };
