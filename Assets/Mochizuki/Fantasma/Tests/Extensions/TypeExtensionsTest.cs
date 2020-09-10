@@ -152,8 +152,13 @@ namespace Mochizuki.Fantasma.Tests.Extensions
 
         [Test]
         [TestCase(typeof(bool), "bool")]
+        [TestCase(typeof(void*), "void*")]
         [TestCase(typeof(GameObject), "GameObject")]
         [TestCase(typeof(GameObject[]), "GameObject[]")]
+        [TestCase(typeof(AnimatorRecorderMode), "AnimatorRecorderMode")]
+        [TestCase(typeof(AnimatorRecorderMode*), "AnimatorRecorderMode*")]
+        [TestCase(typeof(Vector3), "Vector3")]
+        [TestCase(typeof(Vector3*), "Vector3*")]
         [TestCase(typeof(IEnumerable<string>), "IEnumerable<string>")]
         [TestCase(typeof(AClass), "TypeExtensionsTest.AClass")]
         [TestCase(typeof(AClass.BClass.CClass), "TypeExtensionsTest.AClass.BClass.CClass")]

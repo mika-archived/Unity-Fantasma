@@ -46,6 +46,12 @@ namespace Mochizuki.Fantasma.Extensions
                 return t.KeywordNormalizedName();
             if (t.IsGenericParameter)
                 return t.Name;
+            if (t.IsPointer && !string.IsNullOrWhiteSpace(t.FullName))
+            {
+                var underling = Type.GetType(t.FullName.Substring(0, t.FullName.Length - 1));
+                if (underling.IsKeywordType())
+                    return $"{underling.KeywordNormalizedName()}*";
+            }
 
             var sb = new StringBuilder();
             if (t.DeclaringType != null)
