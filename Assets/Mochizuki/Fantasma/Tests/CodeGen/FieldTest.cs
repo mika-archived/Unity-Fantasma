@@ -30,6 +30,7 @@ namespace Mochizuki.Fantasma.Tests.CodeGen
             // ReSharper disable once UnusedMember.Local
             public const long FieldG = long.MaxValue;
 
+            // ReSharper disable once UnusedMember.Local
             public const DayOfWeek FieldH = DayOfWeek.Friday;
 
             public static long FieldD;
