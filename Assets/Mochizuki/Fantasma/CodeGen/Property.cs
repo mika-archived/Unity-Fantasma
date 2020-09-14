@@ -46,7 +46,7 @@ namespace Mochizuki.Fantasma.CodeGen
 
         public ReadOnlyCollection<Type> References => new ReadOnlyCollection<Type>(new List<Type> { Type });
 
-        public bool Test(MemberInfo member)
+        public static bool Test(MemberInfo member)
         {
             return member.MemberType == MemberTypes.Property;
         }

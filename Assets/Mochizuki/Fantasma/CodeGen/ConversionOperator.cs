@@ -44,7 +44,7 @@ namespace Mochizuki.Fantasma.CodeGen
 
         public ReadOnlyCollection<Type> References => _references.AsReadOnly();
 
-        public bool Test(MemberInfo member)
+        public static bool Test(MemberInfo member)
         {
             return member.MemberType == MemberTypes.Method && ((MethodInfo) member).IsSpecialName && MethodOperatorMap.ContainsKey(member.Name);
         }

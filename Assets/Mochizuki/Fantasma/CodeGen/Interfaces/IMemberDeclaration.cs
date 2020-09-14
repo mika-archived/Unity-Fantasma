@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Reflection;
 
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -12,7 +11,5 @@ namespace Mochizuki.Fantasma.CodeGen.Interfaces
         ///     all type references in this declarations
         /// </summary>
         ReadOnlyCollection<Type> References { get; }
-
-        bool Test(MemberInfo member);
     }
 }
