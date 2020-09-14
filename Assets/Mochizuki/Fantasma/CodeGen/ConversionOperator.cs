@@ -21,10 +21,13 @@ namespace Mochizuki.Fantasma.CodeGen
         });
 
         private readonly MethodInfo _overload;
+        private readonly List<Type> _references;
 
         public ConversionOperator(MethodInfo overload)
         {
             _overload = overload;
+            _references = new List<Type> { _overload.ReturnType };
+            _references.AddRange(_overload.GetParameters().Select(w => w.ParameterType));
         }
 
         public ConversionOperatorDeclarationSyntax DeclarationToSyntax(bool implementation)
@@ -39,6 +42,6 @@ namespace Mochizuki.Fantasma.CodeGen
                                 .WithBody(statements);
         }
 
-        public ReadOnlyCollection<Type> References { get; }
+        public ReadOnlyCollection<Type> References => _references.AsReadOnly();
     }
 }

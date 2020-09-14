@@ -39,16 +39,17 @@ namespace Mochizuki.Fantasma.CodeGen
             { "op_LessThan", SyntaxKind.LessThanToken },
             { "op_GreaterThan", SyntaxKind.GreaterThanToken },
             { "op_LessThanOrEqual", SyntaxKind.LessThanEqualsToken },
-            { "op_GreaterThanOrEqual", SyntaxKind.GreaterThanEqualsToken },
-            { "op_Implicit", SyntaxKind.ImplicitKeyword },
-            { "op_Explicit", SyntaxKind.ExplicitKeyword }
+            { "op_GreaterThanOrEqual", SyntaxKind.GreaterThanEqualsToken }
         });
 
         private readonly MethodInfo _overload;
+        private readonly List<Type> _references;
 
         public Operator(MethodInfo overload)
         {
             _overload = overload;
+            _references = new List<Type> { _overload.ReturnType };
+            _references.AddRange(_overload.GetParameters().Select(w => w.ParameterType));
         }
 
         public OperatorDeclarationSyntax DeclarationToSyntax(bool implementation)
@@ -63,6 +64,6 @@ namespace Mochizuki.Fantasma.CodeGen
                                 .WithBody(statements);
         }
 
-        public ReadOnlyCollection<Type> References { get; }
+        public ReadOnlyCollection<Type> References => _references.AsReadOnly();
     }
 }
