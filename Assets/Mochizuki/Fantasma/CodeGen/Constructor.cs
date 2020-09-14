@@ -54,6 +54,11 @@ namespace Mochizuki.Fantasma.CodeGen
 
         public ReadOnlyCollection<Type> References => ArgumentTypes;
 
+        public bool Test(MemberInfo member)
+        {
+            return member.MemberType == MemberTypes.Constructor;
+        }
+
         public Constructor CreateDefaultConstructor()
         {
             return new Constructor(_constructor, true);

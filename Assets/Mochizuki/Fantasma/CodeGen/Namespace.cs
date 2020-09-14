@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -25,5 +26,10 @@ namespace Mochizuki.Fantasma.CodeGen
         }
 
         public ReadOnlyCollection<Type> References => new ReadOnlyCollection<Type>(Array.Empty<Type>());
+
+        public bool Test(MemberInfo member)
+        {
+            return true;
+        }
     }
 }

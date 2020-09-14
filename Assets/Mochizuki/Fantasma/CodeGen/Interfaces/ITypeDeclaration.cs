@@ -31,5 +31,8 @@ namespace Mochizuki.Fantasma.CodeGen.Interfaces
         ///     extract class fields, methods, properties, references and base classes.
         /// </summary>
         void Extract();
+
+        // Reserved for C# 8.0 and .NET Core 3.0 or greater
+        // void Test(MemberInfo member) => true;
     }
 }
