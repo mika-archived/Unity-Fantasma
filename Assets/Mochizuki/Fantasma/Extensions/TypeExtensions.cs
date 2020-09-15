@@ -163,6 +163,26 @@ namespace Mochizuki.Fantasma.Extensions
             return interfaces.Where(w => DenyInterfaces.Exists(v => w.Name != v)).ToArray();
         }
 
+        public static IEnumerable<Type> RecursiveExtract(this Type t)
+        {
+            var types = new List<Type>();
+
+            void RecursiveExtractType(Type t1)
+            {
+                if (t1.IsGenericType)
+                    t1.GenericTypeArguments.ToList().ForEach(RecursiveExtractType);
+
+                if (t1.IsKeywordType())
+                    return;
+
+                types.Add(t1);
+            }
+
+            RecursiveExtractType(t);
+
+            return types.Distinct().ToList();
+        }
+
         public static bool IsGenericParameter(this Type t)
         {
             if (t.IsGenericParameter)
